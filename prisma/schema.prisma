@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  jobs      Job[]
+}
+
+model UploadSession {
+  id         String   @id @default(uuid())
+  userId     String?
+  objectKey  String
+  size       Int
+  checksum   String?
+  status     String   @default("created")
+  createdAt  DateTime @default(now())
+  user       User?    @relation(fields: [userId], references: [id])
+}
+
+model Job {
+  id         String      @id @default(uuid())
+  userId     String?
+  sessionId  String?
+  status     String      @default("queued")
+  outputs    Json
+  progress   Int         @default(0)
+  results    JobResult[]
+  logs       JobLog[]
+  createdAt  DateTime    @default(now())
+  startedAt  DateTime?
+  finishedAt DateTime?
+  user       User?       @relation(fields: [userId], references: [id])
+}
+
+model JobResult {
+  id       String  @id @default(uuid())
+  jobId    String
+  format   String
+  key      String
+  size     Int?
+  createdAt DateTime @default(now())
+  job      Job     @relation(fields:[jobId], references:[id])
+}
+
+model JobLog {
+  id        String   @id @default(uuid())
+  jobId     String
+  level     String
+  message   String
+  ts        DateTime @default(now())
+  job       Job     @relation(fields:[jobId], references:[id])
+}
