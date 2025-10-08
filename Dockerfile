@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY package.json pnpm-lock.yaml ./
 
 # Install dependencies (production only)
-RUN pnpm install --frozen-lockfile --prod
+RUN pnpm install --frozen-lockfile 
 
 # Copy app source
 COPY . .
